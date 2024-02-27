@@ -1,4 +1,6 @@
-# cmux: Connection Mux ![Travis Build Status](https://api.travis-ci.org/soheilhy/args.svg?branch=master "Travis Build Status") [![GoDoc](https://godoc.org/github.com/soheilhy/cmux?status.svg)](http://godoc.org/github.com/soheilhy/cmux)
+# cmux: Connection Mux 
+[![Build Status](https://github.com/johnobe/cmux/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/johnobe/cmux/actions/workflows/build-and-test.yml)
+[![GoDoc](https://godoc.org/github.com/soheilhy/cmux?status.svg)](http://godoc.org/github.com/soheilhy/cmux)
 
 cmux is a generic Go library to multiplex connections based on
 their payload. Using cmux, you can serve gRPC, SSH, HTTPS, HTTP,
