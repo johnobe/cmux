@@ -1,5 +1,5 @@
 # cmux: Connection Mux 
-[![Build-And-Tests](https://github.com/johnobe/cmux/actions/workflows/go.yml/badge.svg)](https://github.com/johnobe/cmux/actions/workflows/go.yml) 
+[![Build-and-Test](https://github.com/johnobe/cmux/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/johnobe/cmux/actions/workflows/go.yml) 
 [![GoDoc](https://godoc.org/github.com/soheilhy/cmux?status.svg)](http://godoc.org/github.com/soheilhy/cmux)
 
 cmux is a generic Go library to multiplex connections based on
