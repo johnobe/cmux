@@ -75,6 +75,7 @@ func TLS(versions ...int) Matcher {
 			tls.VersionTLS10,
 			tls.VersionTLS11,
 			tls.VersionTLS12,
+			tls.VersionTLS13,
 		}
 	}
 	prefixes := [][]byte{}
