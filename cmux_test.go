@@ -98,7 +98,7 @@ func testListener(t *testing.T) (net.Listener, func()) {
 type testHTTP1Handler struct{}
 
 func (h *testHTTP1Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, testHTTP1Resp)
+	fmt.Fprint(w, testHTTP1Resp)
 }
 
 func runTestHTTPServer(errCh chan<- error, l net.Listener) {
@@ -333,12 +333,14 @@ func TestRead(t *testing.T) {
 	const mult = 2
 
 	writer, reader := net.Pipe()
+	errs := make(chan error, 1)
 	go func() {
+		defer close(errs)
 		if _, err := io.WriteString(writer, strings.Repeat(payload, mult)); err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 		if err := writer.Close(); err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 	}()
 
@@ -374,6 +376,11 @@ func TestRead(t *testing.T) {
 	var b [1]byte
 	if _, err := muxedConn.Read(b[:]); err != io.EOF {
 		t.Errorf("unexpected error %v, expected %v", err, io.EOF)
+	}
+
+	err = <-errs
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -437,12 +444,14 @@ func TestHTTP2(t *testing.T) {
 		}
 	}()
 	writer, reader := net.Pipe()
+	errs := make(chan error, 1)
 	go func() {
+		defer close(errs)
 		if _, err := io.WriteString(writer, http2.ClientPreface); err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 		if err := writer.Close(); err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 	}()
 
@@ -475,6 +484,11 @@ func TestHTTP2(t *testing.T) {
 	if string(b[:]) != http2.ClientPreface {
 		t.Errorf("got unexpected read %s, expected %s", b, http2.ClientPreface)
 	}
+
+	err = <-errs
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestHTTP2MatchHeaderField(t *testing.T) {
@@ -503,14 +517,16 @@ func testHTTP2MatchHeaderField(
 	}()
 	name := "name"
 	writer, reader := net.Pipe()
+	errs := make(chan error, 1)
 	go func() {
+		defer close(errs)
 		if _, err := io.WriteString(writer, http2.ClientPreface); err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 		var buf bytes.Buffer
 		enc := hpack.NewEncoder(&buf)
 		if err := enc.WriteField(hpack.HeaderField{Name: name, Value: headerValue}); err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 		framer := http2.NewFramer(writer, nil)
 		err := framer.WriteHeaders(http2.HeadersFrameParam{
@@ -520,10 +536,10 @@ func testHTTP2MatchHeaderField(
 			EndHeaders:    true,
 		})
 		if err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 		if err := writer.Close(); err != nil {
-			t.Fatal(err)
+			errs <- err
 		}
 	}()
 
@@ -553,6 +569,11 @@ func testHTTP2MatchHeaderField(
 	}
 	if string(b[:]) != http2.ClientPreface {
 		t.Errorf("got unexpected read %s, expected %s", b, http2.ClientPreface)
+	}
+
+	err = <-errs
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
